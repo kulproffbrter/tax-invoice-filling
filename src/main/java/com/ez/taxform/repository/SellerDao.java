@@ -86,4 +86,10 @@ public class SellerDao {
                 seller.getCreateDate());
         }
     }
+    
+ // เพิ่ม method สำหรับอัปเดต logo
+    public void updateLogo(UUID sellerId, String logoUrl) {
+        String sql = "UPDATE seller SET logo = ? WHERE seller_id = ?";
+        jdbcTemplate.update(sql, logoUrl, sellerId);
+    }
 }

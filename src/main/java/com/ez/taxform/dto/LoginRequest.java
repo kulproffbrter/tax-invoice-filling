@@ -2,7 +2,7 @@ package com.ez.taxform.dto;
 
 public class LoginRequest {
 	private String username;
-    private String userPassword;
+    private String password;
     
     // Getter / Setter
     public String getUsername() {
@@ -11,11 +11,11 @@ public class LoginRequest {
 	public void setUsername(String username) {
 		this.username = username;
 	}
-	public String getUserPassword() {
-		return userPassword;
+	public String getPassword() {
+		return password;
 	}
-	public void setUserPassword(String userPassword) {
-		this.userPassword = userPassword;
+	public void setPassword(String password) {
+		this.password = password;
 	}
     
 }

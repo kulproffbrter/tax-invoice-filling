@@ -15,7 +15,7 @@ public class AuthRequest {
 	private String username;
 
 	// @NotBlank(message = "Password is required")
-	private String userPassword;
+	private String password;
 
 	@NotBlank(message = "กรุณาระบุชื่อบริษัท")
 	private String sellerNameTh;
@@ -41,7 +41,6 @@ public class AuthRequest {
 	@Size(min = 1, max = 16, message = "เลขที่อาคารต้องมีความยาวไม่เกิน 16 ตัวอักษร")
 	private String buildingNo;
 
-	@NotBlank(message = "กรุณาระบุรายละเอียดที่อยู่ (ภาษาไทย)")
 	@Size(min = 1, max = 255, message = "รายละเอียดที่อยู่ (ภาษาไทย) ต้องมีความยาวไม่เกิน 255 ตัวอักษร")
 	private String addressDetailTh;
 
@@ -93,12 +92,12 @@ public class AuthRequest {
 		this.username = username;
 	}
 
-	public String getUserPassword() {
-		return userPassword;
+	public String getPassword() {
+		return password;
 	}
 
-	public void setUserPassword(String userPassword) {
-		this.userPassword = userPassword;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getSellerNameTh() {

@@ -15,7 +15,7 @@ public class UserRowMapper implements RowMapper<UserDto> {
         user.setFullName(rs.getString("full_name"));
         user.setEmail(rs.getString("email"));
         user.setUsername(rs.getString("username"));
-        user.setUserPassword(rs.getString("user_password"));
+        user.setPassword(rs.getString("user_password"));
         user.setBranchId((UUID) rs.getObject("branch_id"));
         user.setSellerId((UUID) rs.getObject("seller_id"));
         user.setEnableFlag(rs.getString("enable_flag"));

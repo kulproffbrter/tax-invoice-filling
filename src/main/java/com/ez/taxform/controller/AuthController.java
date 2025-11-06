@@ -9,6 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.LinkedHashMap;
+import org.springframework.web.multipart.MultipartFile;
+import java.util.UUID;
+
+
 
 @RestController
 @RequestMapping("/api/eztax")
@@ -31,21 +35,36 @@ public class AuthController {
 	}
 
 	/*
-	 @PostMapping("/register")
-	 public ResponseEntity<String>register(@RequestBody @Valid AuthRequest request) {authService.register(request);
-	 return ResponseEntity.ok("Register successful"); }
-	 
+	 * @PostMapping("/register") public
+	 * ResponseEntity<String>register(@RequestBody @Valid AuthRequest request)
+	 * {authService.register(request); return
+	 * ResponseEntity.ok("Register successful"); }
+	 * 
+	 * 
+	 * @PostMapping("/login") public ResponseEntity<?> login(@RequestBody
+	 * LoginRequest request) { LoginResponse response =
+	 * authService.login(request.getUsername(), request.getUserPassword()); return
+	 * ResponseEntity.ok(response); }
+	 * 
+	 */
 
 	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-		LoginResponse response = authService.login(request.getUsername(), request.getUserPassword());
+	public ResponseEntity<String> login(@RequestBody @Valid LoginRequest request) {
+		authService.login(request.getUsername(), request.getPassword());
+		return ResponseEntity.ok("เข้าสู่ระบบสำเร็จ");
+	}
+
+	// ✅ เพิ่ม API Upload Logo
+	@PostMapping("/register/{sellerId}/upload-logo")
+	public ResponseEntity<Map<String, String>> uploadLogo(@PathVariable UUID sellerId,
+			@RequestParam("file") MultipartFile file) {
+
+		String logoUrl = authService.uploadSellerLogo(sellerId, file);
+
+		Map<String, String> response = new LinkedHashMap<>();
+		response.put("message", "อัปโหลดโลโก้สำเร็จ");
+		response.put("logoUrl", logoUrl);
+
 		return ResponseEntity.ok(response);
 	}
-	
-	*/
-	
-	@PostMapping("/login")
-	 public ResponseEntity<String>login(@RequestBody @Valid LoginRequest request) {
-		authService.login(request.getUsername(), request.getUserPassword());
-	 return ResponseEntity.ok("เข้าสู่ระบบสำเร็จ"); }
 }

@@ -2,6 +2,7 @@ package com.ez.taxform.service;
 
 import com.ez.taxform.dto.*;
 import com.ez.taxform.repository.*;
+import com.ez.taxform.service.CloudinaryService;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -12,21 +13,25 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class AuthRbacService {
 	private final UserDao userDao;
-    private final SellerDao sellerDao;
-    private final BranchDao branchDao;
+	private final SellerDao sellerDao;
+	private final BranchDao branchDao;
 
-    public AuthRbacService(UserDao userDao, SellerDao sellerDao, BranchDao branchDao) {
-        this.userDao = userDao;
-        this.sellerDao = sellerDao;
-        this.branchDao = branchDao;
-    }
+	@Autowired
+	private CloudinaryService cloudinaryService; // ✅ Inject CloudinaryService
 
-    @Transactional
+	public AuthRbacService(UserDao userDao, SellerDao sellerDao, BranchDao branchDao) {
+		this.userDao = userDao;
+		this.sellerDao = sellerDao;
+		this.branchDao = branchDao;
+	}
+
+	@Transactional
     public String register(AuthRequest request) {
     	
     	validateInput(request);
@@ -92,8 +97,8 @@ public class AuthRbacService {
     	
     	// 🔒 เข้ารหัสรหัสผ่านก่อนบันทึก
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String hashedPassword = passwordEncoder.encode(request.getUserPassword());
-        user.setUserPassword(hashedPassword);
+        String hashedPassword = passwordEncoder.encode(request.getPassword());
+        user.setPassword(hashedPassword);
         
     	user.setBranchId(branchId);
     	user.setSellerId(sellerId);
@@ -106,120 +111,118 @@ public class AuthRbacService {
     	
     	return username;
     }
-    
-    public LoginResponse login(String username, String userPassword) {
-        Map<String, String> errors = new LinkedHashMap<>();
-
-        
-        if (username == null || username.isBlank()) {
-            errors.put("username", "กรุณากรอกชื่อผู้ใช้");
-        }
-        if (userPassword == null || userPassword.isBlank()) {
-            errors.put("userPassword", "กรุณากรอกรหัสผ่าน");
-        }
-
-        if (!errors.isEmpty()) {
-            throw new ServiceValidationException(errors);
-        }
-
-       
-        UserDto user = userDao.findByUsername(username);
-
-        if (user == null) {
-            errors.put("username", "ไม่พบบัญชีผู้ใช้นี้ในระบบ");
-            throw new ServiceValidationException(errors);
-        }
-        
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        if (!passwordEncoder.matches(userPassword, user.getUserPassword())) {
-            errors.put("userPassword", "รหัสผ่านไม่ถูกต้อง");
-            throw new ServiceValidationException(errors);
-        }
-
-        
-        if (!"E".equals(user.getEnableFlag())) {
-            errors.put("username", "บัญชีนี้ถูกระงับการใช้งาน");
-            throw new ServiceValidationException(errors);
-        }
-
-        
-        LoginResponse response = new LoginResponse();
-        response.setUserId(user.getUserId());
-        response.setUsername(user.getUsername());
-        response.setFullName(user.getFullName());
-        response.setEmail(user.getEmail());
-        response.setSellerId(user.getSellerId());
-        response.setBranchId(user.getBranchId());
-        response.setMessage("เข้าสู่ระบบสำเร็จ");
-
-        return response;
-    }
-
-
-	private void validateInput(AuthRequest request) { //Logic Validate มีเขียนเพิ่มเติมใน AuthRequest [DTO]
+	
+	// upload logo แยกเส้น API
+	public String uploadSellerLogo(UUID sellerId, MultipartFile file) {
+	    String logoUrl = cloudinaryService.uploadImage(file);
+	    sellerDao.updateLogo(sellerId, logoUrl);
+	    return logoUrl;
+	}
+	
+	public LoginResponse login(String username, String password) {
 		Map<String, String> errors = new LinkedHashMap<>();
 
-		
+		if (username == null || username.isBlank()) {
+			errors.put("username", "กรุณากรอกชื่อผู้ใช้");
+		}
+		if (password == null || password.isBlank()) {
+			errors.put("UserPassword", "กรุณากรอกรหัสผ่าน");
+		}
+
+		if (!errors.isEmpty()) {
+			throw new ServiceValidationException(errors);
+		}
+
+		UserDto user = userDao.findByUsername(username);
+
+		if (user == null) {
+			errors.put("username", "ไม่พบบัญชีผู้ใช้นี้ในระบบ");
+			throw new ServiceValidationException(errors);
+		}
+
+		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		if (!passwordEncoder.matches(password, user.getPassword())) {
+			errors.put("UserPassword", "รหัสผ่านไม่ถูกต้อง");
+			throw new ServiceValidationException(errors);
+		}
+
+		if (!"E".equals(user.getEnableFlag())) {
+			errors.put("username", "บัญชีนี้ถูกระงับการใช้งาน");
+			throw new ServiceValidationException(errors);
+		}
+
+		LoginResponse response = new LoginResponse();
+		response.setUserId(user.getUserId());
+		response.setUsername(user.getUsername());
+		response.setFullName(user.getFullName());
+		response.setEmail(user.getEmail());
+		response.setSellerId(user.getSellerId());
+		response.setBranchId(user.getBranchId());
+		response.setMessage("เข้าสู่ระบบสำเร็จ");
+
+		return response;
+	}
+
+	private void validateInput(AuthRequest request) { // Logic Validate มีเขียนเพิ่มเติมใน AuthRequest [DTO]
+		Map<String, String> errors = new LinkedHashMap<>();
+
 		// Validate Full Name
 		String fullName = request.getFullName();
 		if (fullName == null || !fullName.trim().matches("^[ก-๙A-Za-z\\s]{1,100}$")) {
 			errors.put("fullName", "ชื่อ-นามสกุลต้องเป็นภาษาไทยหรืออังกฤษ และมีความยาวไม่เกิน 100 ตัวอักษร");
 		}
-		
-		
+
 		// Validate Email
 		String email = request.getEmail();
 		if (email == null || !email.trim().matches("^[A-Za-z0-9!@._-]{1,50}$")) {
-			errors.put("email", "อีเมลต้องประกอบด้วยตัวอักษรอังกฤษ ตัวเลข หรืออักขระพิเศษ (!@._-) ไม่เกิน 50 ตัวอักษร"
-		    );
+			errors.put("email", "อีเมลต้องประกอบด้วยตัวอักษรอังกฤษ ตัวเลข หรืออักขระพิเศษ (!@._-) ไม่เกิน 50 ตัวอักษร");
 		} else {
 			email = email.trim();
 			String emailFormatRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 			if (!Pattern.matches(emailFormatRegex, email)) {
 				errors.put("email", "รูปแบบอีเมลไม่ถูกต้องกรุณาแก้ไขอีกรอบ ตัวอย่างเช่น name@example.com");
-		}
-	}
-        
-        
-		// Validate Password
-		String userPassword = request.getUserPassword();
-		if (!StringUtils.hasText(userPassword)) {
-			errors.put("userPassword", "กรุณาระบุรหัสผ่าน");
-		} else {
-			userPassword = userPassword.trim();
-			String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@._\\-#$*&])[A-Za-z\\d!@._\\-#$*&]{8}$";
-			if (!Pattern.matches(passwordRegex, userPassword)) {
-				errors.put("userPassword", "รหัสผ่านต้องมีตัวอักษรพิมพ์ใหญ่, ตัวอักษรพิมพ์เล็ก, ตัวเลข, อักขระพิเศษ (!@._-#$*&) และยาว 8 ตัวอักษร");
-				}
 			}
-        
-        // Validate Seller Tax ID
+		}
+
+		// Validate Password
+		String password = request.getPassword();
+		if (!StringUtils.hasText(password)) {
+			errors.put("Password", "กรุณาระบุรหัสผ่าน");
+		} else {
+			password = password.trim();
+			String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@._\\-#$*&])[A-Za-z\\d!@._\\-#$*&]{8}$";
+			if (!Pattern.matches(passwordRegex, password)) {
+				errors.put("Password",
+						"รหัสผ่านต้องมีตัวอักษรพิมพ์ใหญ่, ตัวอักษรพิมพ์เล็ก, ตัวเลข, อักขระพิเศษ (!@._-#$*&) และยาว 8 ตัวอักษร");
+			}
+		}
+
+		// Validate Seller Tax ID
 		String sellerTaxId = request.getSellerTaxId();
 		if (sellerTaxId == null || !sellerTaxId.trim().matches("^[0-9]{13}$")) {
 			errors.put("sellerTaxId", "เลขประจำตัวผู้เสียภาษีต้องเป็นตัวเลข (0–9) จำนวน 13 หลักเท่านั้น");
 		}
-		
-		if (sellerTaxId != null && sellerTaxId.trim().matches("^[0-9]{13}$")) {
-	        boolean exists = sellerDao.existsBySellerTaxId(sellerTaxId);
-	        if (exists) {
-	            errors.put("sellerTaxId", "เลขประจำตัวผู้เสียภาษีนี้มีอยู่แล้วในระบบ ไม่สามารถลงทะเบียนซ้ำได้");
-	        }
-	    }
 
-        
-        // Validate Branch Code
-        String branchCode = request.getBranchCode();
-        if (branchCode == null || !branchCode.trim().matches("^[0-9]{5}$")) {
-        	errors.put("branchCode", "รหัสสาขาต้องเป็นตัวเลข (0–9) จำนวน 5 หลักเท่านั้น");
+		if (sellerTaxId != null && sellerTaxId.trim().matches("^[0-9]{13}$")) {
+			boolean exists = sellerDao.existsBySellerTaxId(sellerTaxId);
+			if (exists) {
+				errors.put("sellerTaxId", "เลขประจำตัวผู้เสียภาษีนี้มีอยู่แล้วในระบบ ไม่สามารถลงทะเบียนซ้ำได้");
+			}
 		}
-        
-        // เพิ่ม validation ฟิลด์อื่น ๆ ได้ที่นี่...
-        
-        //-----
-        
-        if (!errors.isEmpty()) {
-            throw new ServiceValidationException(errors);
-        }
-		
+
+		// Validate Branch Code
+		String branchCode = request.getBranchCode();
+		if (branchCode == null || !branchCode.trim().matches("^[0-9]{5}$")) {
+			errors.put("branchCode", "รหัสสาขาต้องเป็นตัวเลข (0–9) จำนวน 5 หลักเท่านั้น");
+		}
+
+		// เพิ่ม validation ฟิลด์อื่น ๆ ได้ที่นี่...
+
+		// -----
+
+		if (!errors.isEmpty()) {
+			throw new ServiceValidationException(errors);
+		}
+
 	}
 }

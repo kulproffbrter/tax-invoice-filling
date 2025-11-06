@@ -8,7 +8,7 @@ public class UserDto {
     private String fullName;       // รับค่า Input จาก FE
     private String email;          // รับค่า Input จาก FE
     private String username;       // รับค่า Input จาก FE
-    private String userPassword;   // รับค่า Input จาก FE
+    private String password;   // รับค่า Input จาก FE
     private UUID branchId;
     private UUID sellerId;
     private String enableFlag;     // เช่น "Y" หรือ "N"
@@ -26,8 +26,8 @@ public class UserDto {
     public void setEmail(String email) { this.email = email; }
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
-    public String getUserPassword() { return userPassword; }
-    public void setUserPassword(String userPassword) { this.userPassword = userPassword; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
     public UUID getBranchId() { return branchId; }
     public void setBranchId(UUID branchId) { this.branchId = branchId; }
     public UUID getSellerId() { return sellerId; }
