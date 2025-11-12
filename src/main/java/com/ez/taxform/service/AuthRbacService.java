@@ -190,11 +190,12 @@ public class AuthRbacService {
 			errors.put("Password", "กรุณาระบุรหัสผ่าน");
 		} else {
 			password = password.trim();
-			String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@._\\-#$*&])[A-Za-z\\d!@._\\-#$*&]{8}$";
+			String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@._\\-#$*&])[A-Za-z\\d!@._\\-#$*&]{8,}$";
 			if (!Pattern.matches(passwordRegex, password)) {
-				errors.put("Password",
-						"รหัสผ่านต้องมีตัวอักษรพิมพ์ใหญ่, ตัวอักษรพิมพ์เล็ก, ตัวเลข, อักขระพิเศษ (!@._-#$*&) และยาว 8 ตัวอักษร");
+			    errors.put("Password",
+			        "รหัสผ่านต้องมีตัวอักษรพิมพ์ใหญ่, ตัวอักษรพิมพ์เล็ก, ตัวเลข, อักขระพิเศษ (!@._-#$*&) และยาวอย่างน้อย 8 ตัวอักษร");
 			}
+
 		}
 
 		// Validate Seller Tax ID
