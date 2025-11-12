@@ -3,9 +3,12 @@ package com.ez.taxform.repository;
 import com.ez.taxform.dto.BranchDto;
 
 import java.util.UUID;
+import java.util.List;
+
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.jdbc.core.RowMapper;
 
 @Repository
 public class BranchDao {
@@ -14,6 +17,114 @@ public class BranchDao {
     public BranchDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+    
+    public boolean existsByBranchCode(String branchCode) {
+        Integer count = jdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM branch WHERE branch_code = ?",
+            Integer.class,
+            branchCode
+        );
+        return count != null && count > 0;
+    }
+    
+    public BranchDto findById(UUID branchId) {
+        String sql = "SELECT * FROM branch WHERE branch_id = ?";
+
+        RowMapper<BranchDto> rowMapper = (rs, rowNum) -> {
+            BranchDto b = new BranchDto();
+            b.setBranchId(UUID.fromString(rs.getString("branch_id")));
+            b.setBranchCode(rs.getString("branch_code"));
+            b.setBranchNameTh(rs.getString("branch_name_th"));
+            b.setBranchNameEn(rs.getString("branch_name_en"));
+            b.setBuildingNo(rs.getString("building_no"));
+            b.setAddressDetailTh(rs.getString("address_detail_th"));
+            b.setAddressDetailEn(rs.getString("address_detail_en"));
+            b.setSubdistrictId(rs.getString("subdistrict_id"));
+            b.setDistrictId(rs.getString("district_id"));
+            b.setProvinceId(rs.getString("province_id"));
+            b.setZipCode(rs.getString("zip_code"));
+            b.setCountryId(rs.getString("country_id"));
+            b.setSellerId(UUID.fromString(rs.getString("seller_id")));
+            b.setCreateBy(rs.getString("create_by"));
+            b.setCreateDate(rs.getTimestamp("create_date").toLocalDateTime());
+            b.setUpdateBy(rs.getString("update_by"));
+            if (rs.getTimestamp("update_date") != null)
+                b.setUpdateDate(rs.getTimestamp("update_date").toLocalDateTime());
+            b.setEnableFlag(rs.getString("enable_flag"));
+            return b;
+        };
+
+        try {
+            return jdbcTemplate.queryForObject(sql, rowMapper, branchId);
+        } catch (org.springframework.dao.EmptyResultDataAccessException e) {
+            return null; // ถ้าไม่เจอ branch ให้ return null
+        }
+    }
+
+    
+    public BranchDto findByBranchCode(String branchCode) {
+        String sql = "SELECT * FROM branch WHERE branch_code = ?";
+        List<BranchDto> list = jdbcTemplate.query(sql, new Object[]{branchCode}, (rs, rowNum) -> {
+            BranchDto branch = new BranchDto();
+            branch.setBranchId(UUID.fromString(rs.getString("branch_id")));
+            branch.setBranchCode(rs.getString("branch_code"));
+            branch.setBranchNameTh(rs.getString("branch_name_th"));
+            branch.setBranchNameEn(rs.getString("branch_name_en"));
+            branch.setBuildingNo(rs.getString("building_no"));
+            branch.setAddressDetailTh(rs.getString("address_detail_th"));
+            branch.setAddressDetailEn(rs.getString("address_detail_en"));
+            branch.setSubdistrictId(rs.getString("subdistrict_id"));
+            branch.setDistrictId(rs.getString("district_id"));
+            branch.setProvinceId(rs.getString("province_id"));
+            branch.setZipCode(rs.getString("zip_code"));
+            branch.setCountryId(rs.getString("country_id"));
+            branch.setSellerId(UUID.fromString(rs.getString("seller_id")));
+            branch.setCreateBy(rs.getString("create_by"));
+            branch.setCreateDate(rs.getTimestamp("create_date").toLocalDateTime());
+            branch.setUpdateBy(rs.getString("update_by"));
+            if (rs.getTimestamp("update_date") != null)
+                branch.setUpdateDate(rs.getTimestamp("update_date").toLocalDateTime());
+            branch.setEnableFlag(rs.getString("enable_flag"));
+            return branch;
+        });
+
+        if (list.isEmpty()) {
+            return null; // หรือ throw custom exception
+        }
+
+        return list.get(0);
+    }
+    
+    public BranchDto findByBranchCodeAndSeller(String branchCode, UUID sellerId) {
+        String sql = "SELECT * FROM branch WHERE branch_code = ? AND seller_id = ?";
+        List<BranchDto> list = jdbcTemplate.query(sql, new Object[]{branchCode, sellerId}, (rs, rowNum) -> {
+            BranchDto branch = new BranchDto();
+            branch.setBranchId(UUID.fromString(rs.getString("branch_id")));
+            branch.setBranchCode(rs.getString("branch_code"));
+            branch.setBranchNameTh(rs.getString("branch_name_th"));
+            branch.setBranchNameEn(rs.getString("branch_name_en"));
+            branch.setBuildingNo(rs.getString("building_no"));
+            branch.setAddressDetailTh(rs.getString("address_detail_th"));
+            branch.setAddressDetailEn(rs.getString("address_detail_en"));
+            branch.setSubdistrictId(rs.getString("subdistrict_id"));
+            branch.setDistrictId(rs.getString("district_id"));
+            branch.setProvinceId(rs.getString("province_id"));
+            branch.setZipCode(rs.getString("zip_code"));
+            branch.setCountryId(rs.getString("country_id"));
+            branch.setSellerId(UUID.fromString(rs.getString("seller_id")));
+            branch.setCreateBy(rs.getString("create_by"));
+            branch.setCreateDate(rs.getTimestamp("create_date").toLocalDateTime());
+            branch.setUpdateBy(rs.getString("update_by"));
+            if (rs.getTimestamp("update_date") != null)
+                branch.setUpdateDate(rs.getTimestamp("update_date").toLocalDateTime());
+            branch.setEnableFlag(rs.getString("enable_flag"));
+            return branch;
+        });
+
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+
 
     public int saveOrUpdate(BranchDto branch) {
         
@@ -83,4 +194,10 @@ public class BranchDao {
                 branch.getEnableFlag());
         }
     }
+    
+    public int deleteBranch(UUID branchId) {
+        String sql = "DELETE FROM branch WHERE branch_id = ?";
+        return jdbcTemplate.update(sql, branchId);
+    }
+
 }

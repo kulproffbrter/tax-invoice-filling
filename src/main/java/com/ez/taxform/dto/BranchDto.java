@@ -3,18 +3,46 @@ package com.ez.taxform.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public class BranchDto {
 	private UUID branchId;
+	
+	//@NotBlank(message = "กรุณาระบุรหัสสาขา")
+	//@Size(min = 5, max = 5, message = "รหัสสาขาต้องมีความยาว 5 ตัวอักษร")
 	private String branchCode; // รับค่า Input จาก FE
+	
+	
+	@NotBlank(message = "กรุณาระบุชื่อสาขา (ภาษาไทย)")
+	@Size(min = 1, max = 35, message = "ชื่อสาขา (ภาษาไทย) ต้องมีความยาวไม่เกิน 35 ตัวอักษร")
 	private String branchNameTh; // รับค่า Input จาก FE
+	
+	@Size(min = 0, max = 35, message = "ชื่อสาขา (ภาษาอังกฤษ) ต้องมีความยาวไม่เกิน 35 ตัวอักษร")
 	private String branchNameEn; // รับค่า Input จาก FE
+	
+	@NotBlank(message = "กรุณาระบุเลขที่อาคาร")
+	@Size(min = 1, max = 16, message = "เลขที่อาคารต้องมีความยาวไม่เกิน 16 ตัวอักษร")
 	private String buildingNo; // รับค่า Input จาก FE
+	
+	@Size(min = 0, max = 255, message = "รายละเอียดที่อยู่ (ภาษาไทย) ต้องมีความยาวไม่เกิน 255 ตัวอักษร")
 	private String addressDetailTh; // รับค่า Input จาก FE
+	
+	@Size(min = 0, max = 255, message = "รายละเอียดที่อยู่ (ภาษาอังกฤษ) ต้องมีความยาวไม่เกิน 255 ตัวอักษร")
 	private String addressDetailEn; // รับค่า Input จาก FE
+	
+	@NotBlank(message = "กรุณาระบุเขต/ตำบล")
 	private String subdistrictId; // รับค่า Input จาก FE
+	
+	@NotBlank(message = "กรุณาระบุแขวง/อำเภอ")
 	private String districtId; // รับค่า Input จาก FE
+	
+	@NotBlank(message = "กรุณาระบุจังหวัด")
 	private String provinceId; // รับค่า Input จาก FE
+	
+	@NotBlank(message = "กรุณาระบุรหัสไปรษณีย์")
 	private String zipCode; // รับค่า Input จาก FE
+	
 	private String countryId;
 	private UUID sellerId;
 	private String createBy;

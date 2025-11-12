@@ -3,13 +3,26 @@ package com.ez.taxform.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public class SellerDto {
 	private UUID sellerId;
+	
+	@NotBlank(message = "กรุณาระบุชื่อบริษัท (ภาษาไทย)")
+	@Size(min = 1, max = 100, message = "ชื่อบริษัท (ภาษาไทย) ต้องมีความยาวไม่เกิน 100 ตัวอักษร")
     private String sellerNameTh;       // รับค่า Input จาก FE
+	
+	@NotBlank(message = "กรุณาระบุชื่อบริษัท (ภาษาอังกฤษ)")
+	@Size(min = 1, max = 100, message = "ชื่อบริษัท (ภาษาอังกฤษ) ต้องมีความยาวไม่เกิน 100 ตัวอักษร")
     private String sellerNameEn;       // รับค่า Input จาก FE
-    private String sellerTypeTax;      
+	
+	
+    private String sellerTypeTax;
     private String sellerTaxId;        // รับค่า Input จาก FE
     private String branchId;
+    
+    @Size(min = 0, max = 10, message = "เบอร์โทรต้องมีความยาวไม่เกิน 10 ตัวอักษร")
     private String sellerPhoneNumber;  // รับค่า Input จาก FE
     private String logo;               // รับค่า Input จาก FE
     private String createBy;

@@ -17,10 +17,14 @@ public class AuthRequest {
 	// @NotBlank(message = "Password is required")
 	private String password;
 
-	@NotBlank(message = "กรุณาระบุชื่อบริษัท")
+	@NotBlank(message = "กรุณาระบุชื่อบริษัท (ภาษาไทย)")
+	@Size(min = 1, max = 100, message = "ชื่อบริษัท (ภาษาไทย) ต้องมีความยาวไม่เกิน 100 ตัวอักษร")
 	private String sellerNameTh;
-
+	
+	@NotBlank(message = "กรุณาระบุชื่อบริษัท (ภาษาอังกฤษ)")
+	@Size(min = 1, max = 100, message = "ชื่อบริษัท (ภาษาอังกฤษ) ต้องมีความยาวไม่เกิน 100 ตัวอักษร")
 	private String sellerNameEn;
+	
 	private String sellerTypeTax;
 
 	// @NotBlank(message = "Seller tax id is required")
@@ -30,21 +34,26 @@ public class AuthRequest {
 	// @NotBlank(message = "Branch id is required")
 	// @Size(min = 5, max = 5, message = "Branch id must be 5 characters")
 	private String branchCode;
-
+	
+	@Size(min = 0, max = 10, message = "เบอร์โทรต้องมีความยาวไม่เกิน 10 ตัวอักษร")
 	private String sellerPhoneNumber;
 	private String logo;
-
+	
+	@NotBlank(message = "กรุณาระบุชื่อสาขา (ภาษาไทย)")
+	@Size(min = 1, max = 35, message = "ชื่อสาขา (ภาษาไทย) ต้องมีความยาวไม่เกิน 35 ตัวอักษร")
 	private String branchNameTh;
+	
+	@Size(min = 0, max = 35, message = "ชื่อสาขา (ภาษาอังกฤษ) ต้องมีความยาวไม่เกิน 35 ตัวอักษร")
 	private String branchNameEn;
 
 	@NotBlank(message = "กรุณาระบุเลขที่อาคาร")
 	@Size(min = 1, max = 16, message = "เลขที่อาคารต้องมีความยาวไม่เกิน 16 ตัวอักษร")
 	private String buildingNo;
 
-	@Size(min = 1, max = 255, message = "รายละเอียดที่อยู่ (ภาษาไทย) ต้องมีความยาวไม่เกิน 255 ตัวอักษร")
+	@Size(min = 0, max = 255, message = "รายละเอียดที่อยู่ (ภาษาไทย) ต้องมีความยาวไม่เกิน 255 ตัวอักษร")
 	private String addressDetailTh;
 
-	@Size(min = 1, max = 255, message = "รายละเอียดที่อยู่ (ภาษาอังกฤษ) ต้องมีความยาวไม่เกิน 255 ตัวอักษร")
+	@Size(min = 0, max = 255, message = "รายละเอียดที่อยู่ (ภาษาอังกฤษ) ต้องมีความยาวไม่เกิน 255 ตัวอักษร")
 	private String addressDetailEn;
 
 	@NotBlank(message = "กรุณาระบุเขต/ตำบล")

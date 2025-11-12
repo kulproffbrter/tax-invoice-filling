@@ -58,7 +58,7 @@ public class RbacManageService {
 			throw new ServiceValidationException(errors);
 		}
 
-		// ✅ INSERT MODE
+		// ✅ INSERT Role
 		if (req.getRoleId() == null) {
 
 			// ✅ เช็ค roleCode ซ้ำก่อน insert
@@ -76,11 +76,22 @@ public class RbacManageService {
 			return req.getRoleId();
 		}
 
-		// ✅ UPDATE MODE → ไม่เช็ค roleCode ซ้ำของตัวเอง
+		// ✅ UPDATE Role → ไม่เช็ค roleCode ซ้ำของตัวเอง
 		req.setUpdateBy(operator);
 		roleDao.saveOrUpdate(req);
 		return req.getRoleId();
 	}
+	
+	// ✅ Delete Role
+    public void deleteRole(UUID roleId) {
+        if (roleId == null)
+            throw new IllegalArgumentException("roleId is required");
+
+        int deleted = roleDao.deleteRole(roleId);
+        if (deleted == 0) {
+            throw new RuntimeException("Role not found or already deleted");
+        }
+    }
 
 	// ─────────────────────────────────────────────
 	// MENU add/edit

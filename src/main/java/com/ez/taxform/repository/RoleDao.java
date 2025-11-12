@@ -103,4 +103,9 @@ public class RoleDao {
             );
         }
     }
+    
+    public int deleteRole(UUID roleId) {
+        String sql = "DELETE FROM roles WHERE role_id = ?";
+        return jdbc.update(sql, roleId);
+    }
 }

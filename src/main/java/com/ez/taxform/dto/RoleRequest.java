@@ -3,11 +3,23 @@ package com.ez.taxform.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public class RoleRequest {
 	private UUID roleId;
+	
+	@NotBlank(message = "กรุณาระบุรหัสบทบาท")
+	@Size(min = 1, max = 35, message = "รหัสบทบาทต้องมีความยาวไม่เกิน 35 ตัวอักษร")
 	private String roleCode;
+	
+	@NotBlank(message = "กรุณาระบุชื่อบทบาท")
+	@Size(min = 1, max = 50, message = "ชื่อบทบาทต้องมีความยาวไม่เกิน 50 ตัวอักษร")
 	private String roleName;
+	
+	@NotBlank(message = "กรุณาระบุระดับบทบาท")
 	private String roleLevel;
+	
 	private UUID sellerId;
 	private String enableFlag;
 	private String createBy;
